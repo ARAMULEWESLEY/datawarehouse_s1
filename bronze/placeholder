@@ -1,1 +1,179 @@
+SET @batch_start = now();
+DROP database if EXISTS WESLEY;
+SELECT 'creating WESLEY as db' AS step;
+CREATE DATABASE WESLEY;
+SELECT 'using WESLEY as db' AS step;
+USE WESLEY;
+
+set @start_time = now();
+SELECT'creating table bronze.crm_cust_inf' AS step;
+    DROP TABLE IF EXISTS bronze.crm_cust_info;
+    create table bronze.crm_cust_info(
+        cst_id int,
+        cst_key NVARCHAR(50),
+        cst_firstname NVARCHAR(50),
+        cst_lastname NVARCHAR(50),
+        cst_marital_status NVARCHAR(50),
+        cst_gndr NVARCHAR(50),
+        cst_create_date DATE
+        
+    );
+SET @end_time = now();
+SELECT CONCAT('⏱ Load completed in ', TIMESTAMPDIFF(SECOND, @start_time, @end_time), ' seconds.') AS message;
+
+SET @start_time = now();
+SELECT'creating table bronze.crm_prd_inf' AS step;
+    DROP TABLE if EXISTS bronze.crm_prd_info;
+    CREATE table bronze.crm_prd_info(
+        prd_id INT,
+        prd_key NVARCHAR(50),
+        prd_nm NVARCHAR(50),
+        prd_cost INT,
+        prd_line NVARCHAR(50),
+        prd_start_dt DATE,
+        prd_end_dt DATE
+    );
+SET @end_time = now();
+SELECT CONCAT('⏱ Load completed in ', TIMESTAMPDIFF(SECOND, @start_time, @end_time), ' seconds.') AS message;
+
+SET @start_time = now();
+SELECT'creating table bronze.crm_sales_inf' AS step;
+    DROP table if exists bronze.crm_sales_details;
+    CREATE TABLE bronze.crm_sales_details(
+    sls_ord_num NVARCHAR(50),
+    sls_prd_key NVARCHAR(50),
+    sls_cust_id INT,
+    sls_order_dt DATE,
+    sls_ship_dt DATE,
+    sls_due_dt DATE,
+    sls_sales INT,
+    sls_quantity INT,
+    sls_price INT
+    );
+SET @end_time = now();
+SELECT CONCAT('⏱ Load completed in ', TIMESTAMPDIFF(SECOND, @start_time, @end_time), ' seconds.') AS message;
+
+SET @start_time = now();
+SELECT'creating table bronze.erp_CUST_AZ12' AS step;
+    drop table if exists bronze.erp_CUST_AZ12;
+    create table bronze.erp_CUST_AZ12(
+    CID NVARCHAR(50),
+    BDATE DATE,
+    GEN NVARCHAR(50)
+
+    );
+SET @end_time = now();
+SELECT CONCAT('⏱ Load completed in ', TIMESTAMPDIFF(SECOND, @start_time, @end_time), ' seconds.') AS message;
+
+SET @start_time=now();
+SELECT'creating table bronze.erp_LOC_A101' AS step;
+    drop table if exists bronze.erp_LOC_A101;
+    CREATE TABLE bronze.erp_LOC_A101(
+    CID NVARCHAR(50),
+    CNTRY NVARCHAR(50)
+    );
+SET @end_time = now();
+SELECT CONCAT('⏱ Load completed in ', TIMESTAMPDIFF(SECOND, @start_time, @end_time), ' seconds.') AS message;
+
+SET @start_time = now();
+SELECT'creating table bronze.erp_PX_CAT_G1V2' AS step;
+
+    drop table if exists bronze.erp_PX_CAT_G1V2;
+    CREATE TABLE bronze.erp_PX_CAT_G1V2(
+        ID NVARCHAR(50),
+        CAT NVARCHAR(50),
+        SUBCAT NVARCHAR(50),
+        MAINTENANCE NVARCHAR(50)
+
+    );
+SET @end_time = now();
+SELECT CONCAT('⏱ Load completed in ', TIMESTAMPDIFF(SECOND, @start_time, @end_time), ' seconds.') AS message;
+
+
+SET @start_time = now();
+SELECT'reloading staff in table bronze.crm_cust_info' AS step;
+        TRUNCATE TABLE bronze.crm_cust_info;
+        SET sql_mode = '';
+        LOAD DATA INFILE '/var/lib/mysql-files/cust_info.csv'
+        INTO TABLE bronze.crm_cust_info
+        FIELDS TERMINATED BY ','
+        LINES TERMINATED BY '\n'
+        IGNORE 1 ROWS
+        (cst_id,cst_key,cst_firstname,cst_lastname,cst_marital_status,cst_gndr,cst_create_date);
+SET @end_time = now();
+SELECT CONCAT('⏱ Load completed in ', TIMESTAMPDIFF(SECOND, @start_time, @end_time), ' seconds.') AS message;
+
+
+SET @start_time = now();
+SELECT'reloading staff in table bronze.crm-prod_info' AS step;
+
+        TRUNCATE TABLE bronze.crm_prd_info;
+        SET sql_mode = '';
+        LOAD DATA INFILE '/var/lib/mysql-files/prd_info.csv'
+        INTO TABLE bronze.crm_prd_info
+        FIELDS TERMINATED BY ','
+        LINES TERMINATED BY '\n'
+        IGNORE 1 ROWS
+        (prd_id,prd_key,prd_nm,prd_cost,prd_line,prd_start_dt,prd_end_dt);
+SET @end_time = now();
+SELECT CONCAT('⏱ Load completed in ', TIMESTAMPDIFF(SECOND, @start_time, @end_time), ' seconds.') AS message;
+
+
+SET @start_time = now();
+SELECT'reloading staff in table bronze.crm_sales_details' AS step;
+        TRUNCATE TABLE bronze.crm_sales_details;
+        SET sql_mode = '';
+        LOAD DATA INFILE '/var/lib/mysql-files/sales_details.csv'
+        INTO TABLE bronze.crm_sales_details
+        FIELDS TERMINATED BY ','
+        LINES TERMINATED BY '\n'
+        IGNORE 1 ROWS
+        (sls_ord_num,sls_prd_key,sls_cust_id,sls_order_dt,sls_ship_dt,sls_due_dt,sls_sales,sls_quantity,sls_price);
+SET @end_time = now();
+SELECT CONCAT('⏱ Load completed in ', TIMESTAMPDIFF(SECOND, @start_time, @end_time), ' seconds.') AS message;
+
+
+SET @start_time = now();
+SELECT'reloading staff in table bronze.erp_CUST_AZ12' AS step;
+
+        TRUNCATE TABLE bronze.erp_CUST_AZ12;
+        SET sql_mode = '';
+        LOAD DATA INFILE '/var/lib/mysql-files/CUST_AZ12.csv'
+        INTO TABLE bronze.erp_CUST_AZ12
+        FIELDS TERMINATED BY ','
+        LINES TERMINATED BY '\n'
+        IGNORE 1 ROWS
+        (CID,BDATE,GEN);
+SET @end_time = now();
+SELECT CONCAT('⏱ Load completed in ', TIMESTAMPDIFF(SECOND, @start_time, @end_time), ' seconds.') AS message;
+
+SET @start_time = now();
+SELECT'reloading staff in table bronze.erp_LOC_A101' AS step;
+        TRUNCATE TABLE bronze.erp_LOC_A101;
+        SET sql_mode = '';
+        LOAD DATA INFILE '/var/lib/mysql-files/LOC_A101.csv'
+        INTO TABLE bronze.erp_LOC_A101
+        FIELDS TERMINATED BY ','
+        LINES TERMINATED BY '\n'
+        IGNORE 1 ROWS
+        (CID,CNTRY);
+SET @end_time = now();
+SELECT CONCAT('⏱ Load completed in ', TIMESTAMPDIFF(SECOND, @start_time, @end_time), ' seconds.') AS message;
+
+
+SET @start_time = now();
+SELECT'reloading staff in table bronze.crm_PX_CAT_G1V2' AS step;
+        TRUNCATE TABLE bronze.erp_PX_CAT_G1V2;
+        SET sql_mode = '';
+        LOAD DATA INFILE '/var/lib/mysql-files/PX_CAT_G1V2.csv'
+        INTO TABLE bronze.erp_PX_CAT_G1V2
+        FIELDS TERMINATED BY ','
+        LINES TERMINATED BY '\n'
+        IGNORE 1 ROWS
+        (ID,CAT,SUBCAT,MAINTENANCE);
+   SET @end_time = now();
+SELECT CONCAT('⏱ Load completed in ', TIMESTAMPDIFF(SECOND, @start_time, @end_time), ' seconds.') AS message;
+
+SET @batch_end = now();
+SELECT CONCAT('⏱ Load completed in ', TIMESTAMPDIFF(SECOND, @batch_start, @batch_end), ' seconds.') AS message;
 
